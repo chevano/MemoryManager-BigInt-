@@ -1,1 +1,2 @@
 # MemoryManager-BigInt-
+This memory manager is customized specifically for objects of type BigInt and works only in a single-threaded environment. This is accomplish by keeping a pool of BigInt objects inside the memory manager available and have future allocations happen from inside the pool. If the number of BigInt objects that need to be created exceeds the number of objects inside the pool, then the pool increases to make up for the demand. The pool is then destroyed at the moment the program terminates.
