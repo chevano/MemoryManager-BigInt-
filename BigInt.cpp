@@ -43,6 +43,7 @@ class BigInt {
     inline void operator delete(void *);
     inline void operator delete[](void *);
 
+    void normalizeSize(BigInt&, BigInt&);
     int isLarger(const BigInt&, const BigInt&);
     void computeSum(BigInt&, BigInt&, BigInt&);
     void computeDiff(BigInt&, BigInt&, BigInt&, int&);
@@ -67,8 +68,8 @@ int main()
 {
     // BigInt b1("12345678901234");
     // BigInt b2("12345678901234");
-    BigInt b1("99");
-    BigInt b2("22");
+    BigInt b1("8888");
+    BigInt b2("9999");
 
     BigInt b3 = b1 + b2;
     BigInt b4 = b1 - b2;
@@ -203,6 +204,17 @@ BigInt::BigInt(const BigInt & oldObj) {
 *********************************/
 BigInt::~BigInt() {
     delete [] num;
+}
+
+/*********************************************
+*   Copies the element from the smaller object
+*   to the newly created larger object
+**********************************************/
+void BigInt::normalizeSize(BigInt& largerObj, BigInt& smallerObj) {
+    int sizeDiff = largerObj.size - smallerObj.size;
+
+    for(int i = sizeDiff; i < largerObj.size; i++)
+        largerObj.num[i] = smallerObj.num[i-sizeDiff];
 }
 
 /**************************************************
@@ -462,10 +474,6 @@ BigInt& BigInt::operator=(const BigInt& obj) {
 **************************************************/
 BigInt BigInt::operator+(const BigInt& rhs) { 
     int largerSize, sign, index = 0;
-
-    // Set to true if the object on the left hand side
-    // size is greater than or equal to the object on
-    // the right hand side
     bool isSize; 
 
     BigInt lhsCopy = *this; // Object on the left hand side of the + operator
@@ -473,27 +481,26 @@ BigInt BigInt::operator+(const BigInt& rhs) {
 
     setIsSize(lhsCopy.size, rhsCopy.size, largerSize, isSize, sign);
 
-    BigInt temp(largerSize);
+    BigInt lhsCopyy(largerSize+1);
+    BigInt rhsCopyy(largerSize+1);
 
-    int sizeDiff = abs(lhsCopy.size - rhsCopy.size);
+    // int lhsDiff = lhsCopyy.size - lhsCopy.size;
+    
+    // for(int i = lhsDiff; i < lhsCopyy.size; i++)
+    //     lhsCopyy.num[i] = lhsCopy.num[i-lhsDiff];
 
-    for(int i = sizeDiff; i < largerSize; i++) {
-        if(isSize)
-            temp.num[i] = rhsCopy.num[index++];
-        else 
-            temp.num[i] = lhsCopy.num[index++];
-    }
+    // int rhsDiff = rhsCopyy.size - rhsCopy.size;
+
+    // for(int i = rhsDiff; i < rhsCopyy.size; i++)
+    //     rhsCopyy.num[i] = rhsCopy.num[i-rhsDiff];
+
+    normalizeSize(lhsCopyy, lhsCopy);
+    normalizeSize(rhsCopyy, rhsCopy);
 
     BigInt lhsTemp, rhsTemp;
 
-    if(isSize) {
-        lhsTemp = reverse(lhsCopy);
-        rhsTemp = reverse(temp);
-    }
-    else {
-        lhsTemp = reverse(temp);
-        rhsTemp = reverse(rhsCopy);
-    }
+    lhsTemp = reverse(lhsCopyy);
+    rhsTemp = reverse(rhsCopyy);
 
     BigInt bigInt(largerSize+1);
     computeSum(bigInt,lhsTemp,rhsTemp);
